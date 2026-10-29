@@ -91,6 +91,14 @@ class DevToolsMcpServerIT {
     }
 
     @Test
+    void shouldReportInvalidJsonWithoutToolError() {
+        CallToolResult result = callTool("validate_json", Map.of("json", "{invalido}"));
+
+        assertFalse(Boolean.TRUE.equals(result.isError()));
+        assertEquals("JSON inválido.", textOf(result));
+    }
+
+    @Test
     void shouldEncodeAndDecodeBase64() {
         CallToolResult encodedResult = callTool("encode_base64", Map.of("text", "Olá, mundo!"));
         assertFalse(Boolean.TRUE.equals(encodedResult.isError()));
@@ -107,6 +115,14 @@ class DevToolsMcpServerIT {
 
         assertTrue(Boolean.TRUE.equals(result.isError()));
         assertTrue(textOf(result).contains("Base64 válido"));
+    }
+
+    @Test
+    void shouldReportEmptyBase64AsToolError() {
+        CallToolResult result = callTool("decode_base64", Map.of("base64", "   "));
+
+        assertTrue(Boolean.TRUE.equals(result.isError()));
+        assertTrue(textOf(result).contains("Base64 não pode ser vazio"));
     }
 
     @Test

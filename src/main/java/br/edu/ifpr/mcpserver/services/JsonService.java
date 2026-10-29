@@ -20,6 +20,10 @@ public class JsonService {
     }
 
     public String format(String json) {
+        if (json == null || json.isBlank()) {
+            throw new IllegalArgumentException("JSON vazio.");
+        }
+
         try {
             JsonNode node = jsonMapper.readTree(json);
 

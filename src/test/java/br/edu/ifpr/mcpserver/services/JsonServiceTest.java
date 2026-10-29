@@ -21,6 +21,16 @@ class JsonServiceTest {
     }
 
     @Test
+    void shouldRejectNullJson() {
+        assertFalse(jsonService.validate(null));
+    }
+
+    @Test
+    void shouldRejectWhitespaceOnlyJson() {
+        assertFalse(jsonService.validate("   \n\t"));
+    }
+
+    @Test
     void shouldFormatJson() {
         String json = "{\"nome\":\"Rafael\",\"idade\":22}";
 
@@ -37,5 +47,15 @@ class JsonServiceTest {
                 IllegalArgumentException.class,
                 () -> jsonService.format("{nome: Rafael}")
         );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenFormattingNullJson() {
+        assertThrows(IllegalArgumentException.class, () -> jsonService.format(null));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenFormattingWhitespaceOnlyJson() {
+        assertThrows(IllegalArgumentException.class, () -> jsonService.format("   \n\t"));
     }
 }

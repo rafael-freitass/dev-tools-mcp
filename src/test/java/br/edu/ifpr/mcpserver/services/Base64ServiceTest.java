@@ -27,6 +27,16 @@ class Base64ServiceTest {
     }
 
     @Test
+    void shouldEncodeEmptyText() {
+        assertEquals("", service.encode(""));
+    }
+
+    @Test
+    void shouldRejectNullTextWhenEncoding() {
+        assertThrows(IllegalArgumentException.class, () -> service.encode(null));
+    }
+
+    @Test
     void shouldRejectInvalidBase64() {
         assertThrows(
                 IllegalArgumentException.class,
@@ -41,4 +51,15 @@ class Base64ServiceTest {
                 () -> service.decode("")
         );
     }
+
+    @Test
+    void shouldRejectWhitespaceOnlyBase64() {
+        assertThrows(IllegalArgumentException.class, () -> service.decode("   \n\t"));
+    }
+
+    @Test
+    void shouldRejectNullBase64() {
+        assertThrows(IllegalArgumentException.class, () -> service.decode(null));
+    }
+
 }

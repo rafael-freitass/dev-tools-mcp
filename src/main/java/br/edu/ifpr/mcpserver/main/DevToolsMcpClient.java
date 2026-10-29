@@ -1,5 +1,6 @@
 package br.edu.ifpr.mcpserver.main;
 import java.io.File;
+import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,11 +20,11 @@ import tools.jackson.databind.json.JsonMapper;
 
 public class DevToolsMcpClient {
     private static final Logger LOG = LoggerFactory.getLogger(DevToolsMcpClient.class);
-    private static final String SERVER_PATH = "server/devtools-mcp_server.jar";
+    private static final String SERVER_JAR_NAME = "devtools-mcp_server.jar";
     private final McpSyncClient client;
 
     private McpSyncClient createClient() {
-        File serverJar = new File(SERVER_PATH);
+        File serverJar = findServerJar();
 
         if (!serverJar.isFile()) {
             throw new IllegalStateException(
@@ -42,6 +43,23 @@ public class DevToolsMcpClient {
         transport.setStdErrorHandler(line -> LOG.info("[SERVER STDERR] {}", line));
 
         return McpClient.sync(transport).build();
+    }
+
+    private File findServerJar() {
+        Path workingDirectory = Path.of("").toAbsolutePath();
+        Path[] candidates = {
+                workingDirectory.resolve("server").resolve(SERVER_JAR_NAME),
+                workingDirectory.resolve("..").resolve("..").resolve("server").resolve(SERVER_JAR_NAME)
+        };
+
+        for (Path candidate : candidates) {
+            File serverJar = candidate.normalize().toFile();
+            if (serverJar.isFile()) {
+                return serverJar;
+            }
+        }
+
+        return candidates[0].normalize().toFile();
     }
 
     private void execute() {
