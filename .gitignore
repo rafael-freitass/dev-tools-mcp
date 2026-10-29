@@ -1,0 +1,44 @@
+# Maven build output
+/target/
+
+# Generated server distribution (built with the Maven `server` profile)
+/server/
+
+# Maven Wrapper: keep its JAR trackable when the wrapper is added
+!.mvn/wrapper/maven-wrapper.jar
+
+# Kotlin build output
+/.kotlin/
+
+# IDE settings
+/.idea/
+*.iml
+*.ipr
+*.iws
+/.vscode/
+
+# Eclipse
+.classpath
+.project
+.settings/
+.factorypath
+.apt_generated/
+.sts4-cache/
+.springBeans
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# Local environment and logs
+.env
+.env.*
+!.env.example
+*.log
+
+# Operating system files
+.DS_Store
+Thumbs.db
