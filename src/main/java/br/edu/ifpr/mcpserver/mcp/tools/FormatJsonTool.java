@@ -1,10 +1,10 @@
 package br.edu.ifpr.mcpserver.mcp.tools;
 import java.util.Map;
 import br.edu.ifpr.mcpserver.mcp.utils.McpToolDefinition;
+import br.edu.ifpr.mcpserver.mcp.utils.ToolResultFactory;
 import br.edu.ifpr.mcpserver.services.JsonService;
 import io.modelcontextprotocol.server.McpServer.SingleSessionSyncSpecification;
 import io.modelcontextprotocol.server.McpServer.SyncSpecification;
-import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
 import io.modelcontextprotocol.spec.McpSchema.Tool;
 
 public class FormatJsonTool implements McpToolDefinition {
@@ -14,13 +14,14 @@ public class FormatJsonTool implements McpToolDefinition {
     public void register(SyncSpecification<SingleSessionSyncSpecification> mcp) {
         Tool tool = Tool.builder()
                 .name("format_json")
-                .description("Formata um texto JSON com indentação e quebras de linha.")
+                .description("Formata um documento JSON válido com indentação e quebras de linha. Preserva o valor JSON, mas não a formatação original; texto vazio ou malformado retorna erro com diagnóstico quando disponível.")
                 .inputSchema(Map.of(
                         "type", "object",
+                        "additionalProperties", false,
                         "properties", Map.of(
                                 "json", Map.of(
                                         "type", "string",
-                                        "description", "Texto JSON que será formatado."
+                                        "description", "Documento JSON completo em texto, por exemplo um objeto, array ou valor JSON primitivo."
                                 )
                         ),
                         "required", new String[]{"json"}
@@ -32,9 +33,9 @@ public class FormatJsonTool implements McpToolDefinition {
             try {
                 String formattedJson = jsonService.format(json);
 
-                return CallToolResult.builder().addTextContent(formattedJson).build();
+                return ToolResultFactory.success(formattedJson);
             } catch (IllegalArgumentException e) {
-                return CallToolResult.builder().addTextContent(e.getMessage()).isError(true).build();
+                return ToolResultFactory.error(e.getMessage());
             }
         });
     }

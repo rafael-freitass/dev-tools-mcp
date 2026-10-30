@@ -31,6 +31,20 @@ class JsonServiceTest {
     }
 
     @Test
+    void shouldReturnParseDiagnosticForInvalidJson() {
+        JsonService.ValidationResult result = jsonService.validateWithDetails("{\"name\": }");
+
+        assertFalse(result.valid());
+        assertTrue(result.message().startsWith("JSON inválido"), result.message());
+        assertTrue(result.message().matches("(?s).*linha 1, coluna \\d+.*"), result.message());
+    }
+
+    @Test
+    void shouldDescribeEmptyJsonAsInvalid() {
+        assertEquals("JSON vazio.", jsonService.validateWithDetails("  ").message());
+    }
+
+    @Test
     void shouldFormatJson() {
         String json = "{\"nome\":\"Rafael\",\"idade\":22}";
 
@@ -43,10 +57,11 @@ class JsonServiceTest {
 
     @Test
     void shouldThrowExceptionWhenFormattingInvalidJson() {
-        assertThrows(
+        IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> jsonService.format("{nome: Rafael}")
         );
+        assertTrue(exception.getMessage().startsWith("JSON inválido"));
     }
 
     @Test

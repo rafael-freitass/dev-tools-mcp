@@ -69,6 +69,8 @@ class DevToolsMcpServerIT {
         ), toolNames);
         assertTrue(result.tools().stream().allMatch(tool ->
                 tool.description() != null && !tool.description().isBlank()));
+        assertTrue(result.tools().stream().allMatch(tool -> Boolean.FALSE.equals(
+                tool.inputSchema().get("additionalProperties"))));
     }
 
     @Test
@@ -87,7 +89,7 @@ class DevToolsMcpServerIT {
         CallToolResult result = callTool("format_json", Map.of("json", "{invalido}"));
 
         assertTrue(Boolean.TRUE.equals(result.isError()));
-        assertNotNull(textOf(result));
+        assertTrue(textOf(result).startsWith("JSON inválido (linha "));
     }
 
     @Test
@@ -95,7 +97,8 @@ class DevToolsMcpServerIT {
         CallToolResult result = callTool("validate_json", Map.of("json", "{invalido}"));
 
         assertFalse(Boolean.TRUE.equals(result.isError()));
-        assertEquals("JSON inválido.", textOf(result));
+        assertTrue(textOf(result).startsWith("JSON inválido (linha "));
+        assertTrue(textOf(result).contains("coluna"));
     }
 
     @Test

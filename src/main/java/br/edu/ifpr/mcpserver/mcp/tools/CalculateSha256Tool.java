@@ -1,10 +1,10 @@
 package br.edu.ifpr.mcpserver.mcp.tools;
 import java.util.Map;
 import br.edu.ifpr.mcpserver.mcp.utils.McpToolDefinition;
+import br.edu.ifpr.mcpserver.mcp.utils.ToolResultFactory;
 import br.edu.ifpr.mcpserver.services.Sha256Service;
 import io.modelcontextprotocol.server.McpServer.SingleSessionSyncSpecification;
 import io.modelcontextprotocol.server.McpServer.SyncSpecification;
-import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
 import io.modelcontextprotocol.spec.McpSchema.Tool;
 
 public class CalculateSha256Tool implements McpToolDefinition {
@@ -14,13 +14,14 @@ public class CalculateSha256Tool implements McpToolDefinition {
     public void register(SyncSpecification<SingleSessionSyncSpecification> mcp) {
         Tool tool = Tool.builder()
                 .name("calculate_sha256")
-                .description("Calcula o hash SHA-256 de um texto.")
+                .description("Calcula SHA-256 dos bytes UTF-8 do texto e retorna 64 caracteres hexadecimais minúsculos. Texto vazio é permitido. SHA-256 não é adequado para armazenar senhas.")
                 .inputSchema(Map.of(
                         "type", "object",
+                        "additionalProperties", false,
                         "properties", Map.of(
                                 "text", Map.of(
                                         "type", "string",
-                                        "description", "Texto cujo hash SHA-256 será calculado."
+                                        "description", "Texto Unicode cujos bytes UTF-8 serão usados no cálculo. Texto vazio é permitido."
                                 )
                         ),
                         "required", new String[]{"text"}
@@ -31,9 +32,9 @@ public class CalculateSha256Tool implements McpToolDefinition {
 
             try {
                 String hash = sha256Service.calculate(text);
-                return CallToolResult.builder().addTextContent(hash).build();
+                return ToolResultFactory.success(hash);
             } catch (IllegalArgumentException e) {
-                return CallToolResult.builder().addTextContent(e.getMessage()).isError(true).build();
+                return ToolResultFactory.error(e.getMessage());
             }
         });
     }

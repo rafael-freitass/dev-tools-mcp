@@ -1,10 +1,10 @@
 package br.edu.ifpr.mcpserver.mcp.tools;
 import java.util.Map;
 import br.edu.ifpr.mcpserver.mcp.utils.McpToolDefinition;
+import br.edu.ifpr.mcpserver.mcp.utils.ToolResultFactory;
 import br.edu.ifpr.mcpserver.services.Base64Service;
 import io.modelcontextprotocol.server.McpServer.SingleSessionSyncSpecification;
 import io.modelcontextprotocol.server.McpServer.SyncSpecification;
-import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
 import io.modelcontextprotocol.spec.McpSchema.Tool;
 
 public class EncodeBase64Tool implements McpToolDefinition {
@@ -14,13 +14,14 @@ public class EncodeBase64Tool implements McpToolDefinition {
     public void register(SyncSpecification<SingleSessionSyncSpecification> mcp) {
         Tool tool = Tool.builder()
                 .name("encode_base64")
-                .description("Codifica um texto em Base64.")
+                .description("Codifica texto usando Base64 padrão RFC 4648 e bytes UTF-8. Texto vazio é permitido; o resultado é somente o conteúdo codificado, sem quebras de linha.")
                 .inputSchema(Map.of(
                         "type", "object",
+                        "additionalProperties", false,
                         "properties", Map.of(
                                 "text", Map.of(
                                         "type", "string",
-                                        "description", "Texto que será codificado."
+                                        "description", "Texto Unicode a codificar em UTF-8. Texto vazio é permitido."
                                 )
                         ),
                         "required", new String[]{"text"}
@@ -32,9 +33,9 @@ public class EncodeBase64Tool implements McpToolDefinition {
             try {
                 String encoded = base64Service.encode(text);
 
-                return CallToolResult.builder().addTextContent(encoded).build();
+                return ToolResultFactory.success(encoded);
             } catch (IllegalArgumentException e) {
-                return CallToolResult.builder().addTextContent(e.getMessage()).isError(true).build();
+                return ToolResultFactory.error(e.getMessage());
             }
         });
     }
